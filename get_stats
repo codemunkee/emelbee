@@ -1,0 +1,21 @@
+#!/usr/bin/env python
+
+import EmelbeeStats
+import argparse
+
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument('year', help='Four digit year')
+parser.add_argument('month', help='Two digit Month')
+parser.add_argument('day', help='Two digit day')
+parser.add_argument('source', help='api or local')
+parser.add_argument('--team', help='Get Info for a Specfic Team' )
+parser.add_argument('--debug', help='Run in Debug Mode', action='store_true')
+
+args = parser.parse_args()
+
+stats = EmelbeeStats.EmelbeeStats(args.year, args.month,
+                                  args.day, args.source, args.debug)
+
+stats.print_scores()
