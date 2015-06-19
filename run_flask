@@ -2,16 +2,18 @@
 
 from flask import Flask, request, redirect
 import twilio.twiml
+import EmelbeeStats
  
 app = Flask(__name__)
+
+stats = EmelbeeStats.EmelbeeStats('2015', '06', '15', 'master_scoreboard.json.sample')
  
-@app.route("/", methods=['GET', 'POST'])
-def hello_monkey():
+@app.route("/scores", methods=['GET'])
+def show_team_scores():
     """Respond to incoming calls with a simple text message."""
- 
+    
     resp = twilio.twiml.Response()
-    with resp.message("Hello, Mobile Monkey") as m:
-        m.media("https://demo.twilio.com/owl.png")
+    resp.message(stats.team_scores()) 
     return str(resp)
  
 if __name__ == "__main__":

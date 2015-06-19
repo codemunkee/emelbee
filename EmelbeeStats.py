@@ -16,7 +16,7 @@ class EmelbeeStats:
             debug - (optional)
         
         """
-    def __init__(self, year, month, day, source, debug=False):
+    def __init__(self, year, month, day, filename=None, debug=False):
 
         # Date to Pull down stats for
         self.year = year
@@ -31,10 +31,10 @@ class EmelbeeStats:
 
         # JSON file with Sample Stats (if we don't want to reach out to
         # the MLB API directly for debugging and developing).
-        self.json_file = 'master_scoreboard.json'
+        self.json_file = filename
 
         # Get the JSON that this class needs
-        self.json_stats = self.return_stats(source)
+        self.json_stats = self.return_stats()
 
         # Team Names as referenced in the MLB API
         self.team_names = ['Pirates',
@@ -74,23 +74,21 @@ class EmelbeeStats:
         print json.dumps({'4': 5, '6': 7}, sort_keys=True, indent=4,
                          separators=(',', ': '))
 
-    def return_stats(self, source):
-        """ Returns Stats in JSON format, source can be 'local' (eg a file)
-            or 'api', the MLB API """
-        if source == 'local':
+    def return_stats(self):
+        """ Returns Stats in JSON format, get it from a local file if one
+            is provided, otherwise hit the MLB API directly """
+        if self.json_file:
             json_data = open(self.json_file).read()
             return json.loads(json_data)
-        elif source == 'api':
+        else:
             if self.debug:
                 print 'Debug: Hitting URL ' + self.assemble_url()
             api_resp = requests.get(self.assemble_url())
-            if api_resp != requests.codes.ok:
+            if api_resp.status_code != requests.codes.ok:
                 sys.exit('API not responding the way we want: Response ' +\
                          'Code ' + str(api_resp.status_code))
             else:
                 return api_resp.json()
-        else:
-            sys.exit('Unable to open source: %s' % source)
 
     def assemble_url(self):
         """ We need to assemble a URL to pull down stats with. """
@@ -98,9 +96,10 @@ class EmelbeeStats:
             + '/day_' + self.day + '/master_scoreboard.json'
         return url
 
-    def print_scores(self):
+    def team_scores(self):
         """ Print out all of the Scores """
 
+        scores = ''
         for stat in self.json_stats['data']['games']['game']:
 
             home_team = stat['home_team_name']
@@ -118,7 +117,7 @@ class EmelbeeStats:
                     home_score = stat[item[0]]['r']['home']
                     away_score = stat[item[0]]['r']['away']
 
-            print '%s (GB:%s) @ %s (GB:%s) :: (%s-%s) %s' % (away_team,
+            scores = scores + '%s (GB:%s) @ %s (GB:%s) :: (%s-%s) %s\n' % (away_team,
                                                              away_team_gb,
                                                              home_team,
                                                              home_team_gb,
@@ -126,3 +125,4 @@ class EmelbeeStats:
                                                              home_score,
                                                              game_status)
 
+        return scores
