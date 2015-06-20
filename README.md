@@ -1,2 +1,7 @@
 # emelbee
-# emelbee
+
+A tiny application that is used toreturn text messages with MLB game scores via Twilio. Once you start flask via the 'run_flask' script, you just need to point Twilio at the web server running on port 5000. 
+
+The app looks for strings coming in as GET requests in the body. If it sees 'scores' it will return all of the day's scores. If it sees a team name it will return that team's score for the day, if it exits. If a user wants to get a score from a previous day they just include a string in the format of '@YYYYMMDD'
+
+Hopefully at some point I can include standings information as well.
