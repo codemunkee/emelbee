@@ -5,6 +5,7 @@ import json
 import sys
 import re
 
+
 class EmelbeeStats:
     """ Pull down MLB stats in JSON from MLB's (mlb.com) free API.
 
@@ -94,13 +95,13 @@ class EmelbeeStats:
 
     def no_game_info_found(self, team=None):
         if team:
-            return str('No game information found for %s on %s/%s/%s' \
-                   % (team.title(), self.month, self.day, self.year))
+            return str('No game information found for %s on %s/%s/%s'
+                       % (team.title(), self.month, self.day, self.year))
         else:
             return str('No game information found for ' +
-                   '%s/%s/%s.' % (self.month,
-                                  self.day,
-                                  self.year))
+                       '%s/%s/%s.' % (self.month,
+                                      self.day,
+                                      self.year))
 
     def assemble_url(self):
         """ We need to assemble a URL to pull down stats with. """
@@ -127,7 +128,7 @@ class EmelbeeStats:
 
         # If a team is defined but it's not valid. We shouldn't
         # get here, but if the attribute gets overridden..
-        if team != None and not self.valid_team(team):
+        if team is not None and not self.valid_team(team):
             sys.exit('"%s" is not a valid team name.' % team)
 
         # If we couldn't get any data
@@ -138,7 +139,7 @@ class EmelbeeStats:
 
         # Sometimes there is JSON data defined but no actual games, bail out
         # if we run into that...
-        if not 'game' in self.json_stats['data']['games']:
+        if 'game' not in self.json_stats['data']['games']:
             return self.no_game_info_found()
         for stat in self.json_stats['data']['games']['game']:
             home_team = stat['home_team_name'].lower()
@@ -148,8 +149,8 @@ class EmelbeeStats:
 
             # If it's not the home or the away team defined, and one
             # is defined, we try the next
-            if (home_team != team and away_team != team) and team != None:
-                 continue
+            if (home_team != team and away_team != team) and team is not None:
+                continue
 
             # Game Status
             game_status = stat['status']['status']
@@ -157,10 +158,10 @@ class EmelbeeStats:
                 print 'Debug: %s' % game_status
 
             try:
-                # The note summarizes the score 
+                # The note summarizes the score
                 note = stat['alerts']['brief_text']
                 scores = scores + note + '\n'
- 
+
             except KeyError:
 
                 if 'linescore' in stat.keys():
@@ -179,8 +180,8 @@ class EmelbeeStats:
                 scores = scores + '%s @ %s (%s-%s) - %s\n' % (away_team_abbrev,
                                                               home_team_abbrev,
                                                               away_score,
-                                                              home_score, game_status)
-                 
+                                                              home_score,
+                                                              game_status)
         if not scores and team:
             return self.no_game_info_found(team)
         elif not scores:

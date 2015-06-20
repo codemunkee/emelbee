@@ -20,6 +20,7 @@ parser.add_argument('--day', help='optional -Two digit day')
 parser.add_argument('-f', '--filename', help='A local JSON file to get ' +\
                     'scores from, instead of hitting the MLB API')
 parser.add_argument('--team', help='Get Info for a Specfic Team' )
+parser.add_argument('-j', '--json', help='Return the raw JSON stats', action='store_true')
 parser.add_argument('--debug', help='Run in Debug Mode', action='store_true')
 
 args = parser.parse_args()
@@ -37,5 +38,8 @@ if args.day:
 stats = EmelbeeStats.EmelbeeStats(year, month,
                                   day, args.filename, args.debug)
 
+if args.json:
+    print stats.json_stats
+else:
+    print stats.team_scores(team=args.team)
 
-print stats.team_scores(team=args.team)
