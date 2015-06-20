@@ -72,30 +72,35 @@ class EmelbeeStats:
     def return_stats(self):
         """ Returns Stats in JSON format, get it from a local file if one
             is provided, otherwise hit the MLB API directly """
+
         if self.json_file:
             json_data = open(self.json_file).read()
             return json.loads(json_data)
+
         else:
+            # Go to the MLB API
+
             if self.debug:
                 print 'Debug: Hitting URL ' + self.assemble_url()
+
             api_resp = requests.get(self.assemble_url())
+
             if self.debug:
                 print 'Debug: %s API Response Code' % (api_resp.status_code)
             if api_resp.status_code != requests.codes.ok:
-                sys.exit(self.no_game_info_found())
+                return None
             else:
                 return api_resp.json()
 
     def no_game_info_found(self, team=None):
         if team:
-            #return str('No game information found for %s on ' +
-            #       '%s/%s/%s' % (team.title(), self.month, self.day, self.year))
-            return str('No game information found for %s on %s/%s/%s' % (team.title(), self.month, self.day, self.year))
+            return str('No game information found for %s on %s/%s/%s' \
+                   % (team.title(), self.month, self.day, self.year))
         else:
             return str('No game information found for ' +
-                   '%s/%s/%s. You sure it\'s in season?' % (self.month,
-                                                            self.day,
-                                                            self.year))
+                   '%s/%s/%s.' % (self.month,
+                                  self.day,
+                                  self.year))
 
     def assemble_url(self):
         """ We need to assemble a URL to pull down stats with. """
@@ -120,9 +125,16 @@ class EmelbeeStats:
         if team:
             team = team.lower()
 
-        # If a team is defined but it's not valid.
+        # If a team is defined but it's not valid. We shouldn't
+        # get here, but if the attribute gets overridden..
         if team != None and not self.valid_team(team):
             sys.exit('"%s" is not a valid team name.' % team)
+
+        # If we couldn't get any data
+        if not self.json_stats and not team:
+            return self.no_game_info_found()
+        elif not self.json_stats and team:
+            return self.no_game_info_found(team)
 
         # Sometimes there is JSON data defined but no actual games, bail out
         # if we run into that...
