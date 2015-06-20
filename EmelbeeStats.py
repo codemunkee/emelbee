@@ -120,28 +120,29 @@ class EmelbeeStats:
             home_team = stat['home_team_name'].lower()
             away_team = stat['away_team_name'].lower()
 
+           # If it's not the home or the away team defined, and one
+           # is defined, we try the next
             if (home_team != team and away_team != team) and team != None:
-                continue
-            # games behind
-            home_team_gb = stat['home_games_back']
-            away_team_gb = stat['away_games_back']
-            # game status
-            game_status = stat['status']['status']
+                 continue
 
-            # Go through the stats file
-            for item in stat.items():
-                # Get the Line Score
-                if item[0] == 'linescore':
-                    home_score = stat[item[0]]['r']['home']
-                    away_score = stat[item[0]]['r']['away']
+            # The note summarizes the score 
+            note = stat['alerts']['brief_text']
+            scores = scores + note + '\n'
 
-            scores = scores + '%s (GB:%s) @ %s (GB:%s) :: '\
-                              '(%s-%s) %s\n' % (away_team.title(),
-                                                away_team_gb,
-                                                home_team.title(),
-                                                home_team_gb,
-                                                away_score,
-                                                home_score,
-                                                game_status)
+            ## Go through the stats file
+            #for item in stat.items():
+            #    # Get the Line Score
+            #    if item[0] == 'linescore':
+            #        home_score = stat[item[0]]['r']['home']
+            #        away_score = stat[item[0]]['r']['away']
+
+            #scores = scores + '%s (GB:%s) @ %s (GB:%s) :: '\
+            #                  '(%s-%s) %s\n' % (away_team.title(),
+            #                                    away_team_gb,
+            #                                    home_team.title(),
+            #                                    home_team_gb,
+            #                                    away_score,
+            #                                    home_score,
+            #                                    game_status)
 
         return scores.rstrip()
