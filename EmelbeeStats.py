@@ -2,19 +2,20 @@
 
 import requests
 import json
-import sys 
+import sys
+
 
 class EmelbeeStats:
-    """ Pull down MLB stats in JSON from MLB's (mlb.com) free API. 
+    """ Pull down MLB stats in JSON from MLB's (mlb.com) free API.
 
-            year, month, day - should be defined for the date you want 
-            to pull down stats for. 
+            year, month, day - should be defined for the date you want
+            to pull down stats for.
 
             source - set to local to read cached local file, set to api
             to pull down from MLB API.
 
             debug - (optional)
-        
+
         """
     def __init__(self, year, month, day, filename=None, debug=False):
 
@@ -37,37 +38,36 @@ class EmelbeeStats:
         self.json_stats = self.return_stats()
 
         # Team Names as referenced in the MLB API
-        self.team_names = ['Pirates',
-                           'White Sox',
-                           'Orioles',
-                           'Phillies',
-                           'Tigers',
-                           'Reds',
-                           'Red Sox',
-                           'Braves',
-                           'Marlins',
-                           'Yankees',
-                           'Mets',
-                           'Blue Jays',
-                           'Rays',
-                           'Nationals',
-                           'Cubs',
-                           'Indians',
-                           'Rangers',
-                           'Dodgers',
-                           'Astros',
-                           'Rockies',
-                           'Brewers',
-                           'Royals',
-                           'Cardinals',
-                           'Twins',
-                           'Angels',
-                           'D-backs',
-                           'Padres',
-                           'Athletics',
-                           'Giants',
-                           'Mariners']
-
+        self.team_names = ['pirates',
+                           'white sox',
+                           'orioles',
+                           'phillies',
+                           'tigers',
+                           'reds',
+                           'red sox',
+                           'braves',
+                           'marlins',
+                           'yankees',
+                           'mets',
+                           'blue jays',
+                           'rays',
+                           'nationals',
+                           'cubs',
+                           'indians',
+                           'rangers',
+                           'dodgers',
+                           'astros',
+                           'rockies',
+                           'brewers',
+                           'royals',
+                           'cardinals',
+                           'twins',
+                           'angels',
+                           'd-backs',
+                           'padres',
+                           'athletics',
+                           'giants',
+                           'mariners']
 
     def print_json(self, json):
         """ Pretty Print the JSON """
@@ -85,7 +85,7 @@ class EmelbeeStats:
                 print 'Debug: Hitting URL ' + self.assemble_url()
             api_resp = requests.get(self.assemble_url())
             if api_resp.status_code != requests.codes.ok:
-                sys.exit('API not responding the way we want: Response ' +\
+                sys.exit('API not responding the way we want: Response ' +
                          'Code ' + str(api_resp.status_code))
             else:
                 return api_resp.json()
@@ -96,18 +96,36 @@ class EmelbeeStats:
             + '/day_' + self.day + '/master_scoreboard.json'
         return url
 
-    def team_scores(self):
-        """ Print out all of the Scores """
+    def valid_team(self, team):
+        """ Make sure it's a a valid team name """
+        if team.lower() in self.team_names:
+            return True
+        else:
+            return False
 
+    def team_scores(self, team=None):
+        """ Return Scores """
+
+        # Placeholder for Scores String
         scores = ''
-        for stat in self.json_stats['data']['games']['game']:
 
-            home_team = stat['home_team_name']
+        # Convert team name to lower case if defined
+        if team:
+            team = team.lower()
+
+        if team != None and not self.valid_team(team):
+            sys.exit('"%s" is not a valid team name.' % team)
+
+        for stat in self.json_stats['data']['games']['game']:
+            home_team = stat['home_team_name'].lower()
+            away_team = stat['away_team_name'].lower()
+
+            if (home_team != team and away_team != team) and team != None:
+                continue
             # games behind
             home_team_gb = stat['home_games_back']
-            away_team = stat['away_team_name']
-            # games behind
             away_team_gb = stat['away_games_back']
+            # game status
             game_status = stat['status']['status']
 
             # Go through the stats file
@@ -117,12 +135,13 @@ class EmelbeeStats:
                     home_score = stat[item[0]]['r']['home']
                     away_score = stat[item[0]]['r']['away']
 
-            scores = scores + '%s (GB:%s) @ %s (GB:%s) :: (%s-%s) %s\n' % (away_team,
-                                                             away_team_gb,
-                                                             home_team,
-                                                             home_team_gb,
-                                                             away_score,
-                                                             home_score,
-                                                             game_status)
+            scores = scores + '%s (GB:%s) @ %s (GB:%s) :: '\
+                              '(%s-%s) %s\n' % (away_team.title(),
+                                                away_team_gb,
+                                                home_team.title(),
+                                                home_team_gb,
+                                                away_score,
+                                                home_score,
+                                                game_status)
 
-        return scores
+        return scores.rstrip()
