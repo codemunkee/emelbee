@@ -7,7 +7,7 @@ stats = EmelbeeStats.EmelbeeStats('2015','06','15',
 
 # print string returned from team_scores function
 def test_all_score_output():
-    patterns=re.compile(r'\bPadres\b|\Giants\b|\bAstros\b|\bDodgers\b')   
+    patterns=re.compile(r'\bLAD\b|\SF\b|\CWS\b|\bBAL\b')   
     assert patterns.search(stats.team_scores())
 
 # connect to the API and get JSON dict results
@@ -29,4 +29,4 @@ def test_case_insensitive_team():
 
 # get an individual team score
 def test_team_score():
-    assert re.match('Dodgers', stats.team_scores('Dodgers'))
+    assert re.match('LAD|Dodgers', stats.team_scores('Dodgers'))

@@ -2,13 +2,21 @@
 
 import EmelbeeStats
 import argparse
+from datetime import date
+
+# Get the date's Stats
+today = date.today()
+year = today.strftime('%Y')
+month = today.strftime('%m')
+day = today.strftime('%d')
 
 
+# Get some Arguments
 parser = argparse.ArgumentParser()
 
-parser.add_argument('year', help='Four digit year')
-parser.add_argument('month', help='Two digit Month')
-parser.add_argument('day', help='Two digit day')
+parser.add_argument('--year', help='optional - Four digit year')
+parser.add_argument('--month', help='optional - Two digit Month')
+parser.add_argument('--day', help='optional -Two digit day')
 parser.add_argument('-f', '--filename', help='A local JSON file to get ' +\
                     'scores from, instead of hitting the MLB API')
 parser.add_argument('--team', help='Get Info for a Specfic Team' )
@@ -16,7 +24,18 @@ parser.add_argument('--debug', help='Run in Debug Mode', action='store_true')
 
 args = parser.parse_args()
 
-stats = EmelbeeStats.EmelbeeStats(args.year, args.month,
-                                  args.day, args.filename, args.debug)
 
-print stats.team_scores()
+# if the date was defined
+if args.year:
+    year = args.year
+if args.month:
+    month = args.month
+if args.day:
+    day = args.day
+
+
+stats = EmelbeeStats.EmelbeeStats(year, month,
+                                  day, args.filename, args.debug)
+
+
+print stats.team_scores(team=args.team)
