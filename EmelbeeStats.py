@@ -18,7 +18,8 @@ class EmelbeeStats:
             debug - (optional)
 
         """
-    def __init__(self, year, month, day, filename=None, debug=False):
+    def __init__(self, year, month, day, score_file=None, standing_file=None,
+                 debug=False):
 
         # Date to Pull down stats for
         self.year = year
@@ -29,14 +30,18 @@ class EmelbeeStats:
         self.debug = debug
 
         # URL for the MLB API
-        self.url_base = 'http://gd2.mlb.com/components/game/mlb'
+        self.score_url_base = 'http://gd2.mlb.com/components/game/mlb'
+
+        # File with standings information, updated every 5 minutes
+        self.standing_file = 'standings.json'
 
         # JSON file with Sample Stats (if we don't want to reach out to
         # the MLB API directly for debugging and developing).
-        self.json_file = filename
+        self.score_file = score_file
 
         # Get the JSON that this class needs
-        self.json_stats = self.return_stats()
+        self.game_stats = self.return_stats()
+        self.standing_stats = self.return_stats(self.standing_file)
 
         # Team Names as referenced in the MLB API
         self.team_names = ['pirates',
@@ -70,21 +75,21 @@ class EmelbeeStats:
                            'giants',
                            'mariners']
 
-    def return_stats(self):
+    def return_stats(self, filename=None):
         """ Returns Stats in JSON format, get it from a local file if one
             is provided, otherwise hit the MLB API directly """
 
-        if self.json_file:
-            json_data = open(self.json_file).read()
+        if filename:
+            json_data = open(filename).read()
             return json.loads(json_data)
 
         else:
             # Go to the MLB API
 
             if self.debug:
-                print 'Debug: Hitting URL ' + self.assemble_url()
+                print 'Debug: Hitting URL ' + self.assemble_mlb_url()
 
-            api_resp = requests.get(self.assemble_url())
+            api_resp = requests.get(self.assemble_mlb_url())
 
             if self.debug:
                 print 'Debug: %s API Response Code' % (api_resp.status_code)
@@ -103,10 +108,10 @@ class EmelbeeStats:
                                       self.day,
                                       self.year))
 
-    def assemble_url(self):
-        """ We need to assemble a URL to pull down stats with. """
-        url = self.url_base + '/year_' + self.year + '/month_' + self.month \
-            + '/day_' + self.day + '/master_scoreboard.json'
+    def assemble_mlb_url(self):
+        """ We need to assemble an MLB URL to pull down stats with. """
+        url = self.score_url_base + '/year_' + self.year + '/month_' +\
+            self.month + '/day_' + self.day + '/master_scoreboard.json'
         return url
 
     def valid_team(self, team):
@@ -115,6 +120,17 @@ class EmelbeeStats:
             return True
         else:
             return False
+
+    def team_standings(self, league, division):
+        """ Return Standings """
+        for team in self.standing_stats['standing']:
+            if team['division'] == division and team['conference'] == league:
+                team_name = team['last_name']
+                conference = team['conference']
+                division = team['division']
+                rank = team['ordinal_rank']
+                gb = team['games_back']
+                print rank, team_name, conference, division, gb
 
     def team_scores(self, team=None):
         """ Return Scores """
@@ -132,16 +148,16 @@ class EmelbeeStats:
             sys.exit('"%s" is not a valid team name.' % team)
 
         # If we couldn't get any data
-        if not self.json_stats and not team:
+        if not self.game_stats and not team:
             return self.no_game_info_found()
-        elif not self.json_stats and team:
+        elif not self.game_stats and team:
             return self.no_game_info_found(team)
 
         # Sometimes there is JSON data defined but no actual games, bail out
         # if we run into that...
-        if 'game' not in self.json_stats['data']['games']:
+        if 'game' not in self.game_stats['data']['games']:
             return self.no_game_info_found()
-        for stat in self.json_stats['data']['games']['game']:
+        for stat in self.game_stats['data']['games']['game']:
             home_team = stat['home_team_name'].lower()
             away_team = stat['away_team_name'].lower()
             home_team_abbrev = stat['home_name_abbrev']

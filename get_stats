@@ -1,8 +1,13 @@
 #!/usr/bin/env python
 
+# This is just a test script to try building / exercising the
+# EmelbeeStats class
+
 import EmelbeeStats
 import argparse
 from datetime import date
+import sys
+
 
 # Get the date's Stats
 today = date.today()
@@ -17,10 +22,13 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--year', help='optional - Four digit year')
 parser.add_argument('--month', help='optional - Two digit Month')
 parser.add_argument('--day', help='optional -Two digit day')
-parser.add_argument('-f', '--filename', help='A local JSON file to get ' +\
+parser.add_argument('-f', '--filename', help='A local JSON file to get ' +
                     'scores from, instead of hitting the MLB API')
-parser.add_argument('--team', help='Get Info for a Specfic Team' )
-parser.add_argument('-j', '--json', help='Return the raw JSON stats', action='store_true')
+parser.add_argument('--team', help='Get Info for a Specfic Team')
+parser.add_argument('--league', help='Specifiy a League')
+parser.add_argument('--division', help='Specifiy a Division')
+parser.add_argument('-j', '--json', help='Return the raw JSON stats',
+                    action='store_true')
 parser.add_argument('--debug', help='Run in Debug Mode', action='store_true')
 
 args = parser.parse_args()
@@ -36,10 +44,13 @@ if args.day:
 
 
 stats = EmelbeeStats.EmelbeeStats(year, month,
-                                  day, args.filename, args.debug)
+                                  day, args.debug)
+
+if args.division:
+    print stats.team_standings(args.league, args.division)
+    sys.exit()
 
 if args.json:
-    print stats.json_stats
+    print stats.game_stats
 else:
     print stats.team_scores(team=args.team)
-
