@@ -42,38 +42,17 @@ class EmelbeeStats:
         # Get the JSON that this class needs
         self.game_stats = self.return_stats()
         self.standing_stats = self.return_stats(self.standing_file)
+ 
+        # List of Team Names
+        self.team_names = self.get_team_names()
 
-        # Team Names as referenced in the MLB API
-        self.team_names = ['pirates',
-                           'white sox',
-                           'orioles',
-                           'phillies',
-                           'tigers',
-                           'reds',
-                           'red sox',
-                           'braves',
-                           'marlins',
-                           'yankees',
-                           'mets',
-                           'blue jays',
-                           'rays',
-                           'nationals',
-                           'cubs',
-                           'indians',
-                           'rangers',
-                           'dodgers',
-                           'astros',
-                           'rockies',
-                           'brewers',
-                           'royals',
-                           'cardinals',
-                           'twins',
-                           'angels',
-                           'd-backs',
-                           'padres',
-                           'athletics',
-                           'giants',
-                           'mariners']
+    def get_team_names(self):
+        """ Read through team_names.txt to get valid team names """
+        team_names = []
+        text_file = open('team_names.txt', 'r')
+        for line in text_file:
+            team_names.append(line.rstrip())
+        return team_names
 
     def return_stats(self, filename=None):
         """ Returns Stats in JSON format, get it from a local file if one
@@ -123,14 +102,22 @@ class EmelbeeStats:
 
     def team_standings(self, league, division):
         """ Return Standings """
+        standings = str()
+        # specified team and league
+        spec_league = league.lower()
+        spec_division = division.lower()
         for team in self.standing_stats['standing']:
-            if team['division'] == division and team['conference'] == league:
+            if team['division'].lower() == spec_division and \
+            team['conference'].lower() == spec_league:
                 team_name = team['last_name']
                 conference = team['conference']
                 division = team['division']
                 rank = team['ordinal_rank']
                 gb = team['games_back']
-                print rank, team_name, conference, division, gb
+                standings = standings + '%s %s - %s GB\n' % (rank,
+                                                             team_name,
+                                                             gb)
+        return standings.rstrip()
 
     def team_scores(self, team=None):
         """ Return Scores """
