@@ -1,0 +1,30 @@
+Dodgers
+Giants
+Padres
+D-backs
+Rockies
+Reds
+Cardinals
+Pirates
+Orioles
+Red Sox
+Yankees
+White Sox
+Cubs
+Marlins
+Rays
+Twins
+Athletics
+Mariners
+Astros
+Rangers
+Nationals
+Phillies
+Braves
+Indians
+Mets
+Tigers
+Blue Jays
+Royals
+Angels
+
