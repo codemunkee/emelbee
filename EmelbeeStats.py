@@ -4,6 +4,7 @@ import requests
 import json
 import sys
 import re
+import os
 
 
 class EmelbeeStats:
@@ -12,14 +13,22 @@ class EmelbeeStats:
             year, month, day - should be defined for the date you want
             to pull down stats for.
 
-            source - set to local to read cached local file, set to api
-            to pull down from MLB API.
+            score_file - set to location of cached local file for score
+            information, it needs needs to be in teh format ber the MLB
+            game day API, http://gd2.mlb.com/components/game/mlb
+
+            standing_file - set to location of cached local file
+            for standings, it needs to be in the format of
+            https://erikberg.com/mlb/standings.json.
 
             debug - (optional)
 
         """
     def __init__(self, year, month, day, score_file=None, standing_file=None,
                  debug=False):
+
+        # Current Working Directory
+        cwd = os.path.dirname(__file__)
 
         # Date to Pull down stats for
         self.year = year
@@ -32,17 +41,17 @@ class EmelbeeStats:
         # URL for the MLB API
         self.score_url_base = 'http://gd2.mlb.com/components/game/mlb'
 
-        # File with standings information, updated every 5 minutes
-        self.standing_file = 'data/standings.json'
+        # JSON File with Standings information
+        self.standing_file = cwd + '/data/standings.json'
 
         # JSON file with Sample Stats (if we don't want to reach out to
         # the MLB API directly for debugging and developing).
-        self.score_file = score_file
+        self.score_file = cwd + '/data/scores.json'
 
         # Get the JSON that this class needs
         self.game_stats = self.return_stats()
         self.standing_stats = self.return_stats(self.standing_file)
- 
+
         # List of Team Names
         self.team_names = self.get_team_names()
 
@@ -101,14 +110,14 @@ class EmelbeeStats:
             return False
 
     def team_standings(self, league, division):
-        """ Return Standings """
+        """ Return Standings as String """
         standings = str()
         # specified team and league
         spec_league = league.lower()
         spec_division = division.lower()
         for team in self.standing_stats['standing']:
             if team['division'].lower() == spec_division and \
-            team['conference'].lower() == spec_league:
+               team['conference'].lower() == spec_league:
                 team_name = team['last_name']
                 conference = team['conference']
                 division = team['division']
@@ -120,7 +129,7 @@ class EmelbeeStats:
         return standings.rstrip()
 
     def team_scores(self, team=None):
-        """ Return Scores """
+        """ Return Scores as String """
 
         # Placeholder for Scores String
         scores = str()
