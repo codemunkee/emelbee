@@ -66,7 +66,7 @@ def show_team_scores():
             queried_teams.append(team)
 
     # If we have queried team names, get their results
-    if queried_teams:
+    if len(queried_teams) != 0:
         stats = EmelbeeStats.EmelbeeStats(year, month, day)
         for qteam in queried_teams:
             message = message + stats.team_scores(qteam) + '\n'
