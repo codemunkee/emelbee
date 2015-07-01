@@ -33,7 +33,7 @@ class EmelbeeStats:
         self.score_url_base = 'http://gd2.mlb.com/components/game/mlb'
 
         # File with standings information, updated every 5 minutes
-        self.standing_file = 'standings.json'
+        self.standing_file = 'data/standings.json'
 
         # JSON file with Sample Stats (if we don't want to reach out to
         # the MLB API directly for debugging and developing).
@@ -49,7 +49,7 @@ class EmelbeeStats:
     def get_team_names(self):
         """ Read through team_names.txt to get valid team names """
         team_names = []
-        text_file = open('team_names.txt', 'r')
+        text_file = open('conf/team_names.txt', 'r')
         for line in text_file:
             team_names.append(line.rstrip())
         return team_names
