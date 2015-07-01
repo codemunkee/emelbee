@@ -53,12 +53,12 @@ class EmelbeeStats:
         self.standing_stats = self.return_stats(self.standing_file)
 
         # List of Team Names
-        self.team_names = self.get_team_names()
+        self.team_names = self.get_team_names(cwd + '/conf/team_names.txt')
 
-    def get_team_names(self):
+    def get_team_names(self, team_names_file):
         """ Read through team_names.txt to get valid team names """
         team_names = []
-        text_file = open('conf/team_names.txt', 'r')
+        text_file = open(team_names_file, 'r')
         for line in text_file:
             team_names.append(line.rstrip())
         return team_names
