@@ -43,8 +43,7 @@ if args.day:
     day = args.day
 
 
-stats = EmelbeeStats.EmelbeeStats(year, month,
-                                  day, args.debug)
+stats = EmelbeeStats(year, month, day, args.debug)
 
 if args.division:
     print stats.team_standings(args.league, args.division)
