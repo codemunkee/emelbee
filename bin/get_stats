@@ -3,7 +3,7 @@
 # This is just a test script to try building / exercising the
 # EmelbeeStats class
 
-import EmelbeeStats
+from EmelbeeStats import EmelbeeStats
 import argparse
 from datetime import date
 import sys
