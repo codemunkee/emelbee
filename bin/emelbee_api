@@ -3,7 +3,7 @@
 from flask import Flask, request, redirect
 from datetime import date
 import twilio.twiml
-import EmelbeeStats
+from EmelbeeStats import EmelbeeStats
 import re
 
 app = Flask(__name__)
