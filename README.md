@@ -4,4 +4,4 @@ A tiny application that is used toreturn text messages with MLB game scores via 
 
 The app looks for strings coming in as GET requests in the body. If it sees 'scores' it will return all of the day's scores. If it sees a team name it will return that team's score for the day, if it exits. If a user wants to get a score from a previous day they just include a string in the format of '@YYYYMMDD'
 
-Hopefully at some point I can include standings information as well.
+You can also get standings by entering something like 'Standings NL West'
