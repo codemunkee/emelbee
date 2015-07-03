@@ -24,9 +24,8 @@ class EmelbeeStats:
         """
     def __init__(self, year, month, day, score_file=None, standing_file=None,
                  debug=False):
-
         # Current Working Directory
-        cwd = os.path.dirname(__file__)
+        cwd = os.getcwd()
 
         # Date to Pull down stats for
         self.year = year
@@ -40,11 +39,11 @@ class EmelbeeStats:
         self.score_url_base = 'http://gd2.mlb.com/components/game/mlb'
 
         # JSON File with Standings information
-        self.standing_file = cwd + '/data/standings.json'
+        self.standing_file = '/tmp/emelbee/standings.json'
 
         # JSON file with Sample Stats (if we don't want to reach out to
         # the MLB API directly for debugging and developing).
-        self.score_file = cwd + '/data/scores.json'
+        self.score_file = '/tmp/emelbee/scores.json'
 
         # Get the JSON that this class needs
         self.game_stats = self.return_stats()
@@ -66,8 +65,11 @@ class EmelbeeStats:
             is provided, otherwise hit the MLB API directly """
 
         if filename:
-            json_data = open(filename).read()
-            return json.loads(json_data)
+            try:
+                json_data = open(filename).read()
+                return json.loads(json_data)
+            except:
+                raise
 
         else:
             # Go to the MLB API
