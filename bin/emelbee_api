@@ -47,14 +47,14 @@ def show_team_scores():
 
     # Conditionals for deciding what SMS to return
     if re.search('scores', body):
-        stats = EmelbeeStats.EmelbeeStats(year, month, day)
+        stats = EmelbeeStats(year, month, day)
         message = stats.team_scores()
 
     legdev_pattern = re.compile('standings[\s][an]l[\s][wce]')
     # league / division match
     legdev_match = legdev_pattern.search(body)
     if legdev_match:
-        stats = EmelbeeStats.EmelbeeStats(year, month, day)
+        stats = EmelbeeStats(year, month, day)
         league = legdev_match.group()[10:12]
         division = legdev_match.group()[13:14]
         message = stats.team_standings(league, division)
@@ -67,7 +67,7 @@ def show_team_scores():
 
     # If we have queried team names, get their results
     if len(queried_teams) != 0:
-        stats = EmelbeeStats.EmelbeeStats(year, month, day)
+        stats = EmelbeeStats(year, month, day)
         for qteam in queried_teams:
             message = message + stats.team_scores(qteam) + '\n'
 
