@@ -9,7 +9,6 @@ setup(name='EmelbeeStats',
       license='BSD',
       py_modules = ['EmelbeeStats'],
       scripts = ['bin/emelbee_stats', 'bin/emelbee_api'],
-      data_files= [('/tmp/emelbee', ['data/standings.json', 'data/scores.json']),
-                   ('/etc/emelbee', ['conf/team_names.txt'])],
+      data_files= [('/etc/emelbee', ['conf/team_names.txt'])],
       install_requires=['requests>=2.7.0'],
       zip_safe=False)

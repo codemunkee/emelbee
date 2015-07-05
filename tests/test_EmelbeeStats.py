@@ -46,3 +46,8 @@ def test_case_insensitive_team():
 # get an individual team score
 def test_team_score():
     assert re.match('LAD|Dodgers', stats.team_scores('Dodgers'))
+
+# get scores from cache
+def test_scores_from_cache_file():
+    scores = stats.scores_from_cache('data/scores.json')
+    assert isinstance(scores, dict)
