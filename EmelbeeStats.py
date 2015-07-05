@@ -1,4 +1,5 @@
 import requests
+import time
 import json
 import sys
 import re
@@ -32,25 +33,49 @@ class EmelbeeStats:
         self.month = month
         self.day = day
 
+        # Current Unix Timestamp
+        self.current_time = time.time()
+
         # Debug Mode
         self.debug = debug
 
+        # Config file with team names
+        self.team_names_file = '/etc/emelbee/team_names.txt'
+
+        # Max Cache Age - Max seconds before we refresh cache
+        self.max_cache_age = 90
+
         # URL for the MLB API
         self.score_url_base = 'http://gd2.mlb.com/components/game/mlb'
+        # URL for the Standings API
+        self.standings_url = 'https://erikberg.com/mlb/standings.json'
 
         # JSON File with Standings information
-        self.standing_file = '/tmp/emelbee/standings.json'
+        self.standings_cache = '/tmp/emelbee_standings_cache.json'
+        self.scores_cache = '/tmp/emelbee_scores_cache.json'
 
-        # JSON file with Sample Stats (if we don't want to reach out to
-        # the MLB API directly for debugging and developing).
-        self.score_file = '/tmp/emelbee/scores.json'
-
-        # Get the JSON that this class needs
-        self.game_stats = self.return_stats()
-        self.standing_stats = self.return_stats(self.standing_file)
+        # Get the JSON for scores and standings that this class needs
+        self.scores = self.return_scores()
+        self.standings = self.return_standings()
 
         # List of Team Names
-        self.team_names = self.get_team_names(cwd + '/conf/team_names.txt')
+        self.team_names = self.get_team_names(self.team_names_file)
+
+    def read_json_file(self, filename):
+        """ Read a JSON file and return dictionary """
+        try:
+            json_data = open(filename).read()
+            return json.loads(json_data)
+        except IOError:
+            print 'Error: Unable to open "%s"' % filename
+            raise
+
+    def file_exists(self, filename):
+        """ Check to see if a file exists """
+        if os.path.isfile(filename): 
+            return True
+        else:
+            return False
 
     def get_team_names(self, team_names_file):
         """ Read through team_names.txt to get valid team names """
@@ -60,31 +85,113 @@ class EmelbeeStats:
             team_names.append(line.rstrip())
         return team_names
 
-    def return_stats(self, filename=None):
-        """ Returns Stats in JSON format, get it from a local file if one
-            is provided, otherwise hit the MLB API directly """
+    def cache_file_age(self, cache_file):
+        """ Get score cache age """
+        mtime = os.path.getmtime(cache_file)
+        return self.current_time - mtime
 
+    def scores_from_api(self):
+        if self.debug:
+            print 'Debug: Hitting URL ' + self.assemble_mlb_url()
+        api_resp = requests.get(self.assemble_mlb_url())
+        if self.debug:
+            print 'Debug: %s API Response Code' % (api_resp.status_code)
+        if api_resp.status_code != requests.codes.ok:
+            return None
+        else:
+            return api_resp.json()
+
+    def standings_from_api(self):
+        if self.debug:
+            print 'Debug: Hitting URL ' + self.standings_url
+        api_resp = requests.get(self.standings_url)
+        if self.debug:
+            print 'Debug: %s API Response Code' % (api_resp.status_code)
+        if api_resp.status_code != requests.codes.ok:
+            return None
+        else:
+            return api_resp.json()
+
+    def return_standings(self, filename=None):
+        """ Returns Standings in JSON format from
+            https://erikberg.com/mlb/standings.json """
+        if filename:
+            return self.read_cache(filename)
+        else:
+            # Does our standings cache exist? 
+            if self.file_exists(self.standings_cache):
+                if self.debug:
+                    print 'Debug: Standings cache file exists.'
+                # Is our local cache up to date?
+                age_secs = self.cache_file_age(self.standings_cache)
+                if self.debug:
+                    print 'Debug: Standings cache file age: ' + str(age_secs)
+                if age_secs > self.max_cache_age:
+                    standings = self.standings_from_api()
+                    self.write_cache(standings, self.standings_cache)
+                    return standings
+                else:
+                    return self.read_cache(self.standings_cache)
+
+            else:
+                if self.debug:
+                    print 'Debug: Standings cache file does NOT exist,' \
+                          + 'going to the Erik Berg API.'
+                standings = self.standings_from_api()
+                self.write_cache(standings, self.standings_cache)
+                return standings 
+
+
+    def write_cache(self, json_blob, cache_file_name):
+        """ Write the JSON blob to cache file """
+        if self.debug:
+            print 'Debug: Writing cache to %s' % cache_file_name
+        with open(cache_file_name, 'w') as cache_file:
+                json.dump(json_blob, cache_file)
+
+    def read_cache(self, cache_file):
+        """ Read the JSON in a cache file """
+        try:
+            json_data = open(cache_file).read()
+            return json.loads(json_data)
+        except IOError:
+            print 'Error: Unable to open "%s"' % filename
+            raise
+
+    def return_scores(self, filename=None):
+        """ Returns scores in JSON format, get it from a local file if one
+            is provided, otherwise check our local cache, if that doesn't
+            work hit the API directly"""
         if filename:
             try:
                 json_data = open(filename).read()
                 return json.loads(json_data)
-            except:
+            except IOError:
+                print 'Error: Unable to open "%s"' % filename
                 raise
-
         else:
-            # Go to the MLB API
+            # Does our scores cache exist? 
+            if self.file_exists(self.scores_cache):
+                if self.debug:
+                    print 'Debug: Scores cache file exists.'
+                # Is our local cache up to date?
+                age_secs = self.cache_file_age(self.scores_cache)
+                print 'Debug: Scores Cache file age: ' + str(age_secs)
 
-            if self.debug:
-                print 'Debug: Hitting URL ' + self.assemble_mlb_url()
-
-            api_resp = requests.get(self.assemble_mlb_url())
-
-            if self.debug:
-                print 'Debug: %s API Response Code' % (api_resp.status_code)
-            if api_resp.status_code != requests.codes.ok:
-                return None
+                if age_secs > self.max_cache_age:
+                    scores = self.scores_from_api()
+                    self.write_cache(scores, self.scores_cache)
+                    return scores
+                else:
+                    return self.read_cache(self.scores_cache)
             else:
-                return api_resp.json()
+                if self.debug:
+                    print 'Debug: Score Cache file does NOT exist, going to' \
+                          + ' the MLB API.'
+                scores = self.scores_from_api()
+                self.write_cache(scores, self.scores_cache)
+                return scores
+
 
     def no_game_info_found(self, team=None):
         if team:
@@ -130,9 +237,8 @@ class EmelbeeStats:
 
     def team_scores(self, team=None):
         """ Return Scores as String """
-
         # Placeholder for Scores String
-        scores = str()
+        team_scores = str()
 
         # Convert team name to lower case if defined
         if team:
@@ -144,16 +250,16 @@ class EmelbeeStats:
             sys.exit('"%s" is not a valid team name.' % team)
 
         # If we couldn't get any data
-        if not self.game_stats and not team:
+        if not self.scores and not team:
             return self.no_game_info_found()
-        elif not self.game_stats and team:
+        elif not self.scores and team:
             return self.no_game_info_found(team)
 
         # Sometimes there is JSON data defined but no actual games, bail out
         # if we run into that...
-        if 'game' not in self.game_stats['data']['games']:
+        if 'game' not in self.scores['data']['games']:
             return self.no_game_info_found()
-        for stat in self.game_stats['data']['games']['game']:
+        for stat in self.scores['data']['games']['game']:
             home_team = stat['home_team_name'].lower()
             away_team = stat['away_team_name'].lower()
             home_team_abbrev = stat['home_name_abbrev']
@@ -166,13 +272,11 @@ class EmelbeeStats:
 
             # Game Status
             game_status = stat['status']['status']
-            if self.debug:
-                print 'Debug: %s' % game_status
 
             try:
                 # The note summarizes the score
                 note = stat['alerts']['brief_text']
-                scores = scores + note + '\n'
+                team_scores = team_scores + note + '\n'
 
             except KeyError:
 
@@ -189,14 +293,14 @@ class EmelbeeStats:
                     home_tz = stat['home_time_zone']
                     game_status = '%s %s' % (home_time, home_tz)
 
-                scores = scores + '%s @ %s (%s-%s) - %s\n' % (away_team_abbrev,
+                team_scores = team_scores + '%s @ %s (%s-%s) - %s\n' % (away_team_abbrev,
                                                               home_team_abbrev,
                                                               away_score,
                                                               home_score,
                                                               game_status)
-        if not scores and team:
+        if not team_scores and team:
             return self.no_game_info_found(team)
-        elif not scores:
+        elif not team_scores:
             return self.no_game_info_found()
 
-        return scores.rstrip()
+        return team_scores.rstrip()
