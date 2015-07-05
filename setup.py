@@ -10,5 +10,5 @@ setup(name='EmelbeeStats',
       py_modules = ['EmelbeeStats'],
       scripts = ['bin/emelbee_stats', 'bin/emelbee_api'],
       data_files= [('/etc/emelbee', ['conf/team_names.txt'])],
-      install_requires=['requests>=2.7.0', 'pyopenssl', 'ndg-httpsclient', 'pyasn1'],
+      install_requires=['requests>=2.7.0'],
       zip_safe=False)
