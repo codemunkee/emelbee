@@ -57,7 +57,7 @@ class EmelbeeStats:
 
         # Max Cache Age - Max seconds before we refresh cache
         self.scores_max_cache_age = 60 # 1 minute
-        self.standing_max_cache_age = 1800 # 30 minutes
+        self.standing_max_cache_age = 300 # 5 minutes
 
         # URL for the MLB API
         self.score_url_base = 'http://gd2.mlb.com/components/game/mlb'
