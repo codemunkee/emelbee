@@ -42,6 +42,9 @@ if args.month:
 if args.day:
     day = args.day
 
+if args.debug:
+    print 'Debug: Date = %s %s %s' % (self.year, self.month, self.day)
+
 stats = EmelbeeStats(year, month, day, debug=args.debug)
 
 if args.division:
