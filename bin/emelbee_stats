@@ -42,16 +42,10 @@ if args.month:
 if args.day:
     day = args.day
 
-if args.debug:
-    print 'Debug: Date = %s %s %s' % (year, month, day)
-
 stats = EmelbeeStats(year, month, day, debug=args.debug)
 
 if args.division:
     print stats.team_standings(args.league, args.division)
     sys.exit()
 
-if args.json:
-    print stats.game_stats
-else:
-    print stats.team_scores(team=args.team)
+print stats.team_scores(team=args.team)

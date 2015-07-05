@@ -1,3 +1,4 @@
+from datetime import date
 import requests
 import time
 import json
@@ -25,25 +26,38 @@ class EmelbeeStats:
         """
     def __init__(self, year, month, day, score_file=None, standing_file=None,
                  debug=False):
+        # Debug Mode
+        self.debug = debug
+
         # Current Working Directory
         cwd = os.getcwd()
 
         # Date to Pull down stats for
-        self.year = year
-        self.month = month
-        self.day = day
+        self.year = str(year)
+        self.month = str(month)
+        self.day = str(day)
+
+        if self.debug:
+            print 'Debug: Requested @%s/%s/%s' % (self.year, self.month,
+                                                  self.day)
 
         # Current Unix Timestamp
         self.current_time = time.time()
-
-        # Debug Mode
-        self.debug = debug
+        # Current Year, Month, Day
+        self.current_year = str(date.today().year)
+        self.current_month = str('{:02d}'.format(date.today().month))
+        self.current_day = str('{:02d}'.format(date.today().day))
+        if self.debug:
+            print 'Debug: Today is @%s/%s/%s' % (self.current_year,
+                                                 self.current_month,
+                                                 self.current_day)
 
         # Config file with team names
         self.team_names_file = '/etc/emelbee/team_names.txt'
 
         # Max Cache Age - Max seconds before we refresh cache
-        self.max_cache_age = 90
+        self.scores_max_cache_age = 60 # 1 minute
+        self.standing_max_cache_age = 1800 # 30 minutes
 
         # URL for the MLB API
         self.score_url_base = 'http://gd2.mlb.com/components/game/mlb'
@@ -51,15 +65,30 @@ class EmelbeeStats:
         self.standings_url = 'https://erikberg.com/mlb/standings.json'
 
         # JSON File with Standings information
-        self.standings_cache = '/tmp/emelbee_standings_cache.json'
-        self.scores_cache = '/tmp/emelbee_scores_cache.json'
 
-        # Get the JSON for scores and standings that this class needs
-        self.scores = self.return_scores()
-        self.standings = self.return_standings()
+        # Get the names of the cache file we should be using. For scores,
+        # where we can get historical information, we create cache files
+        # with the date baked into the filename. Standings are only available
+        # for the most recent date
+        self.standings_cache = '/tmp/emelbee_standings_cache.json'
+        if (self.year == self.current_year) \
+           and (self.month == self.current_month) \
+           and (self.day == self.current_day):
+            self.scores_cache = '/tmp/emelbee_scores_cache.json'
+            self.today = True
+        else:
+            # Otherwise do append the date to the end of the cache filename
+            self.scores_cache = '/tmp/emelbee_scores_cache.json.' \
+                                + self.year + self.month + self.day
+            self.today = False
 
         # List of Team Names
         self.team_names = self.get_team_names(self.team_names_file)
+
+        # HTTP Header Info
+        self.headers = {
+             'User-Agent': 'https://github.com/codemunkee/emelbee',
+             'From': 'codemunkee@gmail.com'}
 
     def read_json_file(self, filename):
         """ Read a JSON file and return dictionary """
@@ -93,7 +122,7 @@ class EmelbeeStats:
     def scores_from_api(self):
         if self.debug:
             print 'Debug: Hitting URL ' + self.assemble_mlb_url()
-        api_resp = requests.get(self.assemble_mlb_url())
+        api_resp = requests.get(self.assemble_mlb_url(), headers=self.headers)
         if self.debug:
             print 'Debug: %s API Response Code' % (api_resp.status_code)
         if api_resp.status_code != requests.codes.ok:
@@ -104,7 +133,7 @@ class EmelbeeStats:
     def standings_from_api(self):
         if self.debug:
             print 'Debug: Hitting URL ' + self.standings_url
-        api_resp = requests.get(self.standings_url)
+        api_resp = requests.get(self.standings_url, headers=self.headers)
         if self.debug:
             print 'Debug: %s API Response Code' % (api_resp.status_code)
         if api_resp.status_code != requests.codes.ok:
@@ -121,12 +150,13 @@ class EmelbeeStats:
             # Does our standings cache exist? 
             if self.file_exists(self.standings_cache):
                 if self.debug:
-                    print 'Debug: Standings cache file exists.'
+                    print 'Debug: Standings Cache file (%s) exists.' \
+                          % (self.standings_cache)
                 # Is our local cache up to date?
                 age_secs = self.cache_file_age(self.standings_cache)
                 if self.debug:
-                    print 'Debug: Standings cache file age: ' + str(age_secs)
-                if age_secs > self.max_cache_age:
+                    print 'Debug: Standings Cache file age: ' + str(age_secs)
+                if age_secs > self.standing_max_cache_age:
                     standings = self.standings_from_api()
                     self.write_cache(standings, self.standings_cache)
                     return standings
@@ -173,16 +203,22 @@ class EmelbeeStats:
             # Does our scores cache exist? 
             if self.file_exists(self.scores_cache):
                 if self.debug:
-                    print 'Debug: Scores cache file exists.'
-                # Is our local cache up to date?
-                age_secs = self.cache_file_age(self.scores_cache)
-                if self.debug:
-                    print 'Debug: Scores Cache file age: ' + str(age_secs)
+                    print 'Debug: Scores Cache file (%s) exists.' \
+                          % self.scores_cache
+                # Only get a new copy of the cache if it's today, otherwise
+                # the stale information is fine (the past doesn't change)
+                if self.today:
+                    # Is our local cache up to date?
+                    age_secs = self.cache_file_age(self.scores_cache)
+                    if self.debug:
+                        print 'Debug: Scores Cache file age: ' + str(age_secs)
 
-                if age_secs > self.max_cache_age:
-                    scores = self.scores_from_api()
-                    self.write_cache(scores, self.scores_cache)
-                    return scores
+                    if age_secs > self.scores_max_cache_age:
+                        scores = self.scores_from_api()
+                        self.write_cache(scores, self.scores_cache)
+                        return scores
+                    else:
+                        return self.read_cache(self.scores_cache)
                 else:
                     return self.read_cache(self.scores_cache)
             else:
@@ -219,11 +255,12 @@ class EmelbeeStats:
 
     def team_standings(self, league, division):
         """ Return Standings as String """
-        standings = str()
+        json_standings = self.return_standings()
+        team_standings = str()
         # specified team and league
         spec_league = league.lower()
         spec_division = division.lower()
-        for team in self.standing_stats['standing']:
+        for team in json_standings['standing']:
             if team['division'].lower() == spec_division and \
                team['conference'].lower() == spec_league:
                 team_name = team['last_name']
@@ -231,36 +268,38 @@ class EmelbeeStats:
                 division = team['division']
                 rank = team['ordinal_rank']
                 gb = team['games_back']
-                standings = standings + '%s %s - %s GB\n' % (rank,
-                                                             team_name,
-                                                             gb)
-        return standings.rstrip()
+                team_standings = team_standings + '%s %s - %s GB\n' \
+                                 % (rank, team_name, gb)
+        return team_standings.rstrip()
 
     def team_scores(self, team=None):
         """ Return Scores as String """
         # Placeholder for Scores String
+        json_scores = self.return_scores()
         team_scores = str()
 
         # Convert team name to lower case if defined
         if team:
             team = team.lower()
 
-        # If a team is defined but it's not valid. We shouldn't
-        # get here, but if the attribute gets overridden..
-        if team is not None and not self.valid_team(team):
-            sys.exit('"%s" is not a valid team name.' % team)
+        # If a team is defined but it's not valid.
+        if team:
+            if not self.valid_team(team):
+                sys.exit('"%s" is not a valid team name.' % team)
 
         # If we couldn't get any data
-        if not self.scores and not team:
+        if not json_scores and not team:
             return self.no_game_info_found()
-        elif not self.scores and team:
+        elif not json_scores and team:
             return self.no_game_info_found(team)
 
         # Sometimes there is JSON data defined but no actual games, bail out
         # if we run into that...
-        if 'game' not in self.scores['data']['games']:
+        if 'game' not in json_scores['data']['games']:
             return self.no_game_info_found()
-        for stat in self.scores['data']['games']['game']:
+
+        # Go through the scores JSON
+        for stat in json_scores['data']['games']['game']:
             home_team = stat['home_team_name'].lower()
             away_team = stat['away_team_name'].lower()
             home_team_abbrev = stat['home_name_abbrev']
