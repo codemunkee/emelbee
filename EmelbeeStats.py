@@ -176,7 +176,8 @@ class EmelbeeStats:
                     print 'Debug: Scores cache file exists.'
                 # Is our local cache up to date?
                 age_secs = self.cache_file_age(self.scores_cache)
-                print 'Debug: Scores Cache file age: ' + str(age_secs)
+                if self.debug:
+                    print 'Debug: Scores Cache file age: ' + str(age_secs)
 
                 if age_secs > self.max_cache_age:
                     scores = self.scores_from_api()
