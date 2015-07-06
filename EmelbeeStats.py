@@ -56,8 +56,8 @@ class EmelbeeStats:
         self.team_names_file = '/etc/emelbee/team_names.txt'
 
         # Max Cache Age - Max seconds before we refresh cache
-        self.scores_max_cache_age = 60 # 1 minute
-        self.standing_max_cache_age = 300 # 5 minutes
+        self.scores_max_cache_age = 60  # 1 minute
+        self.standing_max_cache_age = 300  # 5 minutes
 
         # URL for the MLB API
         self.score_url_base = 'http://gd2.mlb.com/components/game/mlb'
