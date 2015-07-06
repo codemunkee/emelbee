@@ -22,9 +22,9 @@ def test_all_score_output():
     assert patterns.search(stats.team_scores())
 
 
-# connect to the API and get JSON dict results
+# connect to the API and get JSON dict results from scores function
 def test_connect_to_api():
-    json = stats.return_stats()
+    json = stats.return_scores()
     assert isinstance(json, dict)
 
 
@@ -49,5 +49,5 @@ def test_team_score():
 
 # get scores from cache
 def test_scores_from_cache_file():
-    scores = stats.scores_from_cache('data/scores.json')
+    scores = stats.read_cache('tests/emelbee_scores_cache.json')
     assert isinstance(scores, dict)
