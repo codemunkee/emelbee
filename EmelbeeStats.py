@@ -90,15 +90,6 @@ class EmelbeeStats:
              'User-Agent': 'https://github.com/codemunkee/emelbee',
              'From': 'codemunkee@gmail.com'}
 
-    def read_json_file(self, filename):
-        """ Read a JSON file and return dictionary """
-        try:
-            json_data = open(filename).read()
-            return json.loads(json_data)
-        except IOError:
-            print 'Error: Unable to open "%s"' % filename
-            raise
-
     def file_exists(self, filename):
         """ Check to see if a file exists """
         if os.path.isfile(filename): 
