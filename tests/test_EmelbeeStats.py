@@ -35,6 +35,11 @@ def test_todays_all_score_output():
     patterns = re.compile(r'\bLAD\b|\SF\b|\CWS\b|\bBAL\b')
     assert patterns.search(past_stats.team_scores())
 
+# get dictionary from standings API
+def test_todays_standings_info_from_api():
+    standings = todays_stats.standings_from_api()
+    assert isinstance(standings, dict)
+
 # print string returned from team_scores function (today stats)
 def test_todays_all_standings_output():
     patterns = re.compile(r'\bDiamondbacks\b|\Giants\b')
