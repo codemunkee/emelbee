@@ -51,3 +51,8 @@ def test_team_score():
 def test_scores_from_cache_file():
     scores = stats.read_cache('tests/emelbee_scores_cache.json')
     assert isinstance(scores, dict)
+
+# get standings from cache
+def test_standings_from_cache_file():
+    standings = stats.read_cache('tests/emelbee_standings_cache.json')
+    assert isinstance(standings, dict)
