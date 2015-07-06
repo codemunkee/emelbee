@@ -185,7 +185,7 @@ class EmelbeeStats:
             json_data = open(cache_file).read()
             return json.loads(json_data)
         except IOError:
-            print 'Error: Unable to open "%s"' % filename
+            print 'Error: Unable to open "%s"' % cache_file
             raise
 
     def return_scores(self, filename=None):
