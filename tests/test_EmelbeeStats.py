@@ -23,7 +23,13 @@ past_stats = EmelbeeStats.EmelbeeStats('2015', '07', '01',
 
 todays_stats = EmelbeeStats.EmelbeeStats(year, month, day, debug=True)
 
+no_stats = EmelbeeStats.EmelbeeStats('1913', '01', '01', debug=True)
 
+
+# print string returned from team_scores function (old stats)
+def test_bogus_date_output():
+    patterns = re.compile(r'No game information found')
+    assert patterns.search(no_stats.team_scores())
 
 # print string returned from team_scores function (old stats)
 def test_pastday_all_score_output():
