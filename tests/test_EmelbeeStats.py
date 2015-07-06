@@ -19,9 +19,9 @@ day = today.strftime('%d')
 import EmelbeeStats
 
 past_stats = EmelbeeStats.EmelbeeStats('2015', '07', '01',
-                                       'data/scores.json')
+                                       'data/scores.json', debug=True)
 
-todays_stats = EmelbeeStats.EmelbeeStats(year, month, day)
+todays_stats = EmelbeeStats.EmelbeeStats(year, month, day, debug=True)
 
 
 
@@ -35,9 +35,19 @@ def test_todays_all_score_output():
     patterns = re.compile(r'\bLAD\b|\SF\b|\CWS\b|\bBAL\b')
     assert patterns.search(past_stats.team_scores())
 
+# print string returned from team_scores function (today stats)
+def test_todays_all_score_output():
+    patterns = re.compile(r'\bLAD\b|\SF\b|\CWS\b|\bBAL\b')
+    assert patterns.search(past_stats.team_scores())
+
+# get dictionary from scores API
+def test_todays_json_scores_from_api():
+    scores = todays_stats.return_scores()
+    assert isinstance(scores, dict)
+
 # get dictionary from standings API
-def test_todays_standings_info_from_api():
-    standings = todays_stats.standings_from_api()
+def test_todays_json_standings_from_api():
+    standings = todays_stats.return_standings()
     assert isinstance(standings, dict)
 
 # print string returned from team_scores function (today stats)
