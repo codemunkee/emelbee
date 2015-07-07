@@ -24,7 +24,7 @@ class EmelbeeStats:
             debug - (optional)
 
         """
-    def __init__(self, year, month, day, score_file=None, standing_file=None,
+    def __iSFnit__(self, year, month, day, score_file=None, standing_file=None,
                  debug=False):
         # Debug Mode
         self.debug = debug
