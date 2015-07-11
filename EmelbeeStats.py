@@ -70,15 +70,15 @@ class EmelbeeStats:
         # where we can get historical information, we create cache files
         # with the date baked into the filename. Standings are only available
         # for the most recent date
-        self.standings_cache = '/tmp/emelbee_standings_cache.json'
+        self.standings_cache = 'data/emelbee_standings_cache.json'
         if (self.year == self.current_year) \
            and (self.month == self.current_month) \
            and (self.day == self.current_day):
-            self.scores_cache = '/tmp/emelbee_scores_cache.json'
+            self.scores_cache = 'data/emelbee_scores_cache.json'
             self.today = True
         else:
             # Otherwise do append the date to the end of the cache filename
-            self.scores_cache = '/tmp/emelbee_scores_cache.json.' \
+            self.scores_cache = 'data/emelbee_scores_cache.json.' \
                                 + self.year + self.month + self.day
             self.today = False
 
