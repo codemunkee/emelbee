@@ -56,8 +56,8 @@ class EmelbeeStats:
         self.team_names_file = 'etc/team_names.txt'
 
         # Max Cache Age - Max seconds before we refresh cache
-        self.scores_max_cache_age = 60 # 1 minute
-        self.standing_max_cache_age = 300 # 5 minutes
+        self.scores_max_cache_age = 60  # 1 minute
+        self.standing_max_cache_age = 300  # 5 minutes
 
         # URL for the MLB API
         self.score_url_base = 'http://gd2.mlb.com/components/game/mlb'
@@ -89,15 +89,6 @@ class EmelbeeStats:
         self.headers = {
              'User-Agent': 'https://github.com/codemunkee/emelbee',
              'From': 'codemunkee@gmail.com'}
-
-    def read_json_file(self, filename):
-        """ Read a JSON file and return dictionary """
-        try:
-            json_data = open(filename).read()
-            return json.loads(json_data)
-        except IOError:
-            print 'Error: Unable to open "%s"' % filename
-            raise
 
     def file_exists(self, filename):
         """ Check to see if a file exists """
@@ -185,7 +176,7 @@ class EmelbeeStats:
             json_data = open(cache_file).read()
             return json.loads(json_data)
         except IOError:
-            print 'Error: Unable to open "%s"' % filename
+            print 'Error: Unable to open "%s"' % cache_file
             raise
 
     def return_scores(self, filename=None):

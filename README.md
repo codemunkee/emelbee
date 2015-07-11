@@ -6,3 +6,6 @@ The app looks for strings coming in as GET requests in the body. If it sees 'sco
 
 Similarly, you can get standings information by entering something like
 'Standings NL West'. Hoping to add more statistics in the future.
+
+[![Build
+Status](https://travis-ci.org/codemunkee/emelbee.svg?branch=master)](https://travis-ci.org/codemunkee/emelbee)
