@@ -19,7 +19,7 @@ def show_team_scores():
     body = request.values.get('Body', None)
 
     # Pass it on to the EmelbeeAPI module
-    resp.message(EmelbeeAPI.get_response(message))
+    resp.message(EmelbeeAPI.get_response(body))
     return str(resp)
 
 if __name__ == '__main__':
