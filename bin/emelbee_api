@@ -4,80 +4,22 @@ from flask import Flask, request, redirect
 from datetime import date
 import twilio.twiml
 from EmelbeeStats import EmelbeeStats
+import EmelbeeAPI
 import re
 
 app = Flask(__name__)
 
-def get_team_names():
-    """ Read through team_names.txt to get valid team names """
-    team_names = []
-    text_file = open('etc/team_names.txt', 'r')
-    for line in text_file:
-        team_names.append(line.rstrip())
-    return team_names
 
 @app.route("/scores", methods=['GET'])
 def show_team_scores():
-    """ Respond with MLB Scores """
+    """ Respond with MLB Scores and Standings """
     resp = twilio.twiml.Response()
 
     # Get the SMS body
     body = request.values.get('Body', None)
 
-    # By default we look for today's stats
-    today = date.today()
-    year = today.strftime('%Y')
-    month = today.strftime('%m')
-    day = today.strftime('%d')
-
-    # someone can define an older date, however
-    pattern = re.compile('@20[0-2][0-9][0-1][0-9][0-3][0-9]')
-    date_match = pattern.search(body)
-    if date_match:
-        year = date_match.group()[1:5]
-        month = date_match.group()[5:-2]
-        day = date_match.group()[-2:]
-
-    # Convert body to lower case
-    if body:
-        body = body.lower()
-
-    # Placeholder for Response message
-    message = ''
-
-    # Conditionals for deciding what SMS to return
-    if re.search('scores', body):
-        stats = EmelbeeStats(year, month, day)
-        message = stats.team_scores()
-
-    legdev_pattern = re.compile('standings[\s][an]l[\s][wce]')
-    # league / division match
-    legdev_match = legdev_pattern.search(body)
-    if legdev_match:
-        stats = EmelbeeStats(year, month, day)
-        league = legdev_match.group()[10:12]
-        division = legdev_match.group()[13:14]
-        message = stats.team_standings(league, division)
-
-    # Get a list of team names in the message
-    queried_teams = []
-    for team in get_team_names():
-        if re.search(team, body):
-            queried_teams.append(team)
-
-    # If we have queried team names, get their results
-    if len(queried_teams) != 0:
-        stats = EmelbeeStats(year, month, day)
-        for qteam in queried_teams:
-            message = message + stats.team_scores(qteam) + '\n'
-
-    if not message:
-        message = 'Respond w/ "Scores" to get all MLB scores '\
-                  'or enter a team name to get their score. Scores for a '\
-                  'previous day in the season can be received by including '\
-                  'a date in the format @YYYYMMDD.'
-
-    resp.message(message)
+    # Pass it on to the EmelbeeAPI module
+    resp.message(EmelbeeAPI.get_response(message))
     return str(resp)
 
 if __name__ == '__main__':

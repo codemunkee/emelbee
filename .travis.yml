@@ -6,4 +6,7 @@ install:
   - "python setup.py install"
   - "pip install pytest-cov"
 # command to run tests
-script: py.test --cov EmelbeeStats tests/ --cov-report term
+script:
+  - py.test --cov EmelbeeStats tests/ --cov-report term
+  - pep8 EmelbeeStats.py
+  - pep8 EmelbeeAPI.py

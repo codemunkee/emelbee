@@ -61,21 +61,6 @@ def test_todays_all_standings_output():
     patterns = re.compile(r'\bDiamondbacks\b|\Giants\b')
     assert patterns.search(past_stats.team_standings('nl', 'w'))
 
-# make sure if we give a bogus team name the method returns false
-def test_invalid_team():
-    assert past_stats.valid_team('Gnats') == False
-
-
-# make sure if we give a valid team name the method returns false
-def test_valid_team():
-    assert past_stats.valid_team('Dodgers') == True
-
-
-# make sure if we give a valid team name the method returns false
-def test_case_insensitive_team():
-    assert past_stats.valid_team('doDGers') == True
-
-
 # get an individual team score
 def test_team_score():
     assert re.match('LAD|Dodgers', past_stats.team_scores('Dodgers'))

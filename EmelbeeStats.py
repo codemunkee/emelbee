@@ -1,4 +1,5 @@
 from datetime import date
+import EmelbeeTeams
 import requests
 import time
 import json
@@ -52,9 +53,6 @@ class EmelbeeStats:
                                                  self.current_month,
                                                  self.current_day)
 
-        # Config file with team names
-        self.team_names_file = 'etc/team_names.txt'
-
         # Max Cache Age - Max seconds before we refresh cache
         self.scores_max_cache_age = 60  # 1 minute
         self.standing_max_cache_age = 300  # 5 minutes
@@ -87,7 +85,7 @@ class EmelbeeStats:
             self.today = False
 
         # List of Team Names
-        self.team_names = self.get_team_names(self.team_names_file)
+        self.team_names = EmelbeeTeams.get_team_names()
 
         # HTTP Header Info
         self.headers = {
@@ -105,14 +103,6 @@ class EmelbeeStats:
         """ Create a cache directory if it doesn't already exist """
         if not os.path.exists(dirname):
             os.makedirs(dirname)
-
-    def get_team_names(self, team_names_file):
-        """ Read through team_names.txt to get valid team names """
-        team_names = []
-        text_file = open(team_names_file, 'r')
-        for line in text_file:
-            team_names.append(line.rstrip())
-        return team_names
 
     def cache_file_age(self, cache_file):
         """ Get score cache age """
@@ -246,13 +236,6 @@ class EmelbeeStats:
             self.month + '/day_' + self.day + '/master_scoreboard.json'
         return url
 
-    def valid_team(self, team):
-        """ Make sure it's a a valid team name """
-        if team.lower() in self.team_names:
-            return True
-        else:
-            return False
-
     def team_standings(self, league, division):
         """ Return Standings as String """
         json_standings = self.return_standings()
@@ -284,7 +267,7 @@ class EmelbeeStats:
 
         # If a team is defined but it's not valid.
         if team:
-            if not self.valid_team(team):
+            if not EmelbeeTeams.valid_name(team):
                 sys.exit('"%s" is not a valid team name.' % team)
 
         # If we couldn't get any data
