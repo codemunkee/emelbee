@@ -9,6 +9,5 @@ setup(name='EmelbeeStats',
       license='BSD',
       py_modules = ['EmelbeeStats', 'EmelbeeAPI', 'EmelbeeTeams'],
       scripts = ['bin/emelbee_stats', 'bin/emelbee_api'],
-      data_files= [('etc', ['etc/team_names.txt'])],
       install_requires=['requests>=2.7.0', 'flask', 'twilio'],
       zip_safe=False)
