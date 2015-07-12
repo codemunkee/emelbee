@@ -94,7 +94,7 @@ class EmelbeeStats:
 
     def file_exists(self, filename):
         """ Check to see if a file exists """
-        if os.path.isfile(filename): 
+        if os.path.isfile(filename):
             return True
         else:
             return False
@@ -137,7 +137,7 @@ class EmelbeeStats:
         if filename:
             return self.read_cache(filename)
         else:
-            # Does our standings cache exist? 
+            # Does our standings cache exist?
             if self.file_exists(self.standings_cache):
                 if self.debug:
                     print 'Debug: Standings Cache file (%s) exists.' \
@@ -159,8 +159,7 @@ class EmelbeeStats:
                           + 'going to the Erik Berg API.'
                 standings = self.standings_from_api()
                 self.write_cache(standings, self.standings_cache)
-                return standings 
-
+                return standings
 
     def write_cache(self, json_blob, cache_file_name):
         """ Write the JSON blob to cache file """
@@ -190,7 +189,7 @@ class EmelbeeStats:
                 print 'Error: Unable to open "%s"' % filename
                 raise
         else:
-            # Does our scores cache exist? 
+            # Does our scores cache exist?
             if self.file_exists(self.scores_cache):
                 if self.debug:
                     print 'Debug: Scores Cache file (%s) exists.' \
@@ -218,7 +217,6 @@ class EmelbeeStats:
                 scores = self.scores_from_api()
                 self.write_cache(scores, self.scores_cache)
                 return scores
-
 
     def no_game_info_found(self, team=None):
         if team:
@@ -251,8 +249,8 @@ class EmelbeeStats:
                 division = team['division']
                 rank = team['ordinal_rank']
                 gb = team['games_back']
-                team_standings = team_standings + '%s %s - %s GB\n' \
-                                 % (rank, team_name, gb)
+                team_standings = team_standings + '%s %s - %s GB\n' %\
+                                                  (rank, team_name, gb)
         return team_standings.rstrip()
 
     def team_scores(self, team=None):
@@ -316,11 +314,12 @@ class EmelbeeStats:
                     home_tz = stat['home_time_zone']
                     game_status = '%s %s' % (home_time, home_tz)
 
-                team_scores = team_scores + '%s @ %s (%s-%s) - %s\n' % (away_team_abbrev,
-                                                              home_team_abbrev,
-                                                              away_score,
-                                                              home_score,
-                                                              game_status)
+                team_scores = team_scores + '%s @ %s (%s-%s)'\
+                                            ' - %s\n' % (away_team_abbrev,
+                                                         home_team_abbrev,
+                                                         away_score,
+                                                         home_score,
+                                                         game_status)
         if not team_scores and team:
             return self.no_game_info_found(team)
         elif not team_scores:

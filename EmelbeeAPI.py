@@ -60,10 +60,9 @@ def get_scores(message):
     # Otherwise get a list of queried teams
     queried_teams = []
     for team in EmelbeeTeams.get_team_names():
-        #team_pattern = re.compile('[\s]'+ team + '[\s]|^' + team)
-        team_pattern = re.compile('[\s]'+ team + '[\s]|^' + team + '$|[\s]' +\
-                       team + '$|^' + team + '[\s]')
-        if team_pattern.search( message):
+        team_pattern = re.compile('[\s]' + team + '[\s]|^' + team +
+                                  '$|[\s]' + team + '$|^' + team + '[\s]')
+        if team_pattern.search(message):
             # sometimes we can get team abbrevs, this returns
             # the proper team name. e.g. (NYY = Yankees)
             proper_name = EmelbeeTeams.get_proper_name(team)
