@@ -4,13 +4,13 @@ from datetime import date
 import re
 
 
-stock_resp = 'Respond with team name for latest scores. Enter "all" '\
+stock_resp = 'Provide team name for latest scores. Enter "all" '\
              'for all scores\'. To specify date, enter it in the format '\
              '@YYYYMMDD. e.g. "Reds @20140720". For standings, respond '\
              'with "standings".'
 
-stand_stock_resp = 'For standings respond with "Standings League '\
-                   'Division". League should be AL or NL. Division should '\
+stand_stock_resp = 'Respond with "Standings League '\
+                   'Division". League must be AL or NL. Division must '\
                    'be (W)est, (C)entral, or (E)ast. e.g. "Standings NL W"'
 
 
