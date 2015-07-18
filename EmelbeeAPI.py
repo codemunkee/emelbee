@@ -89,6 +89,18 @@ def date_defined(message):
         month = date_match.group()[5:-2]
         day = date_match.group()[-2:]
         return year, month, day
+    elif re.search('yesterday', message):
+        yesterday = date.fromordinal(date.today().toordinal()-1)
+        year = yesterday.strftime('%Y')
+        month = yesterday.strftime('%m')
+        day = yesterday.strftime('%d')
+        return year, month, day
+    elif re.search('tomorrow', message):
+        yesterday = date.fromordinal(date.today().toordinal()+1)
+        year = yesterday.strftime('%Y')
+        month = yesterday.strftime('%m')
+        day = yesterday.strftime('%d')
+        return year, month, day
     else:
         return None
 
