@@ -3,6 +3,7 @@ import EmelbeeTeams
 from datetime import date
 import re
 
+""" This main module drives the responses users receive in the app """
 
 stock_resp = 'Provide team name for latest scores. Enter "all" '\
              'for all scores\'. To specify date, enter it in the format '\
@@ -19,10 +20,8 @@ def get_response(message=None):
     if not message:
         return stock_resp
 
-    # Always make the message lowercase
     message = message.lower()
 
-    # If someone is searching for scores
     if re.search('standings', message):
         return get_standings(message)
     else:
@@ -46,13 +45,11 @@ def get_standings(message):
 
 def get_scores(message):
     """ Return Scores (gets called by get_response) """
-    # If there is a date defined
     if date_defined(message):
         year, month, day = date_defined(message)
     else:
         year, month, day = todays_date()
 
-    # If they save give them all, give them all
     if re.search('all', message):
         stats = EmelbeeStats(year, month, day)
         return stats.team_scores()
