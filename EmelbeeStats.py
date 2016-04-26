@@ -27,10 +27,7 @@ class EmelbeeStats:
         """
     def __init__(self, year, month, day, score_file=None, standing_file=None,
                  debug=False):
-        # Debug Mode
         self.debug = debug
-
-        # Current Working Directory
         cwd = os.getcwd()
 
         # Date to Pull down stats for
@@ -42,9 +39,7 @@ class EmelbeeStats:
             print 'Debug: Requested @%s/%s/%s' % (self.year, self.month,
                                                   self.day)
 
-        # Current Unix Timestamp
         self.current_time = time.time()
-        # Current Year, Month, Day
         self.current_year = str(date.today().year)
         self.current_month = str('{:02d}'.format(date.today().month))
         self.current_day = str('{:02d}'.format(date.today().day))
@@ -57,12 +52,9 @@ class EmelbeeStats:
         self.scores_max_cache_age = 60  # 1 minute
         self.standing_max_cache_age = 300  # 5 minutes
 
-        # URL for the MLB API
         self.score_url_base = 'http://gd2.mlb.com/components/game/mlb'
-        # URL for the Standings API
         self.standings_url = 'https://erikberg.com/mlb/standings.json'
 
-        # Create Cache directory
         cache_dir = 'data'
         self.create_cache_dir(cache_dir)
 
@@ -84,10 +76,9 @@ class EmelbeeStats:
                                 + self.year + self.month + self.day
             self.today = False
 
-        # List of Team Names
         self.team_names = EmelbeeTeams.get_team_names()
 
-        # HTTP Header Info
+        # We need these headers so the APIs can identify us as a legit user
         self.headers = {
              'User-Agent': 'https://github.com/codemunkee/emelbee',
              'From': 'codemunkee@gmail.com'}
@@ -259,11 +250,9 @@ class EmelbeeStats:
         json_scores = self.return_scores()
         team_scores = str()
 
-        # Convert team name to lower case if defined
         if team:
             team = team.lower()
 
-        # If a team is defined but it's not valid.
         if team:
             if not EmelbeeTeams.valid_name(team):
                 sys.exit('"%s" is not a valid team name.' % team)
@@ -308,7 +297,7 @@ class EmelbeeStats:
                     home_score = 0
                     away_score = 0
 
-                # If the game hasn't start, get the start time
+                # If the game hasn't started, get the start time
                 if re.search('Preview', game_status):
                     home_time = stat['home_time']
                     home_tz = stat['home_time_zone']
