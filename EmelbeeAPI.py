@@ -96,10 +96,10 @@ def date_defined(message):
         day = yesterday.strftime('%d')
         return year, month, day
     elif re.search('tomorrow', message):
-        yesterday = date.fromordinal(date.today().toordinal()+1)
-        year = yesterday.strftime('%Y')
-        month = yesterday.strftime('%m')
-        day = yesterday.strftime('%d')
+        tomorrow = date.fromordinal(date.today().toordinal()+1)
+        year = tomorrow.strftime('%Y')
+        month = tomorrow.strftime('%m')
+        day = tomorrow.strftime('%d')
         return year, month, day
     else:
         return None
