@@ -72,10 +72,7 @@ team_names = {'dodgers': 'dodgers',
 
 def get_team_names():
     """ Return a list of team names """
-    teams = []
-    for team in team_names:
-        teams.append(team)
-    return teams
+    return [ team for team in team_names ]
 
 
 def get_proper_name(name):
