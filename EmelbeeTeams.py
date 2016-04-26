@@ -1,5 +1,6 @@
 """
-return valid team names
+This is used for mapping abbreviations to team names and otherwise
+validating that we were provided a valid team name..
 """
 
 team_names = {'dodgers': 'dodgers',
